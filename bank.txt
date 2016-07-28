@@ -1,0 +1,330 @@
+#include<iostream.h>
+#include<fstream.h>
+#include<conio.h>
+#include<string.h>
+#include<process.h>
+#include<stdio.h>
+#include<stdlib.h>
+
+class bank
+{   int num;
+    char login[30];
+    float amount;
+    char password[10];
+public:
+
+    void getvalues(char s[],float f,char p[],int n)
+    {
+	strcpy(login,s);
+	amount=f;
+	strcpy(password,p);
+	num=n;
+    }
+
+    float money()
+    {
+	return amount;
+    }
+    char* code()
+    {
+	return login;
+    }
+    char* code2()
+    {    return password;
+    }
+    int getAccountNumber()
+    {
+    return num;
+    }
+
+};
+
+int welcome()
+{         int choice;
+     cout<<"\nWELCOME TO THE BANK";
+     cout<<"\nplease enter your choice:";
+     cout<<"\n1.New customer";
+     cout<<"\n2.Existing customer";
+     cout<<"\n3.View all account holders";
+     cout<<"\n4.exit";
+     cout<<"\n-->";
+     cin>>choice;
+     return choice;
+}
+
+
+
+void main()
+{  clrscr();
+   int len;
+   bank b;
+   char mail[30];
+   float m;
+   char pass[10];
+   int n;
+   char ans='y';int p;
+   while(ans=='y'||ans=='Y')
+   {
+   p= welcome();
+   switch(p)
+   {
+   case 1:
+   clrscr();
+   ifstream fin("person");
+   int assign;
+	n=rand()%100;
+
+	while(fin.read((char*)&b,sizeof(b)))
+	{
+	assign=b.getAccountNumber();
+	n=assign+1;
+
+	}
+
+   len=32;
+   while(len>30)
+   {
+   clrscr();
+   cout<<"\nenter a valid login id for your account(maximum length 30):";
+   gets(mail);
+   len=strlen(mail);
+   }
+   len=11;
+   while(len>10)
+   {    clrscr();
+   cout<<"\nenter a valid password for your account (maximum length 10):";
+   gets(pass);
+   len=strlen(pass);
+   }
+
+   fin.seekg(0);
+   while(fin)
+   {
+   fin.read((char*)&b,sizeof(b));
+   if(strcmp(mail,b.code())==0)
+   {
+
+   cout<<"\nlogin id  already exist!!";
+   cout<<"\nplease enter again:";
+   gets(mail);
+   fin.seekg(0,ios::beg);
+   }
+   }
+
+   ofstream fout("person",ios::app);
+   cout<<"\nenter amount you want to deposit:";
+   cin>>m;
+   clrscr();
+   cout<<"\naccount created!!";
+
+   fin.close();
+     b.getvalues(mail,m,pass,n);
+     fout.write((char*)&b,sizeof(b));
+     fout.close();
+   clrscr();
+
+   cout<<"\nYour account number is:"<<b.getAccountNumber();
+   cout<<"\nplease  enter 'y' or 'Y' to return to the main menu:";
+   cin>>ans;
+   clrscr();
+   break;
+
+
+case 2:clrscr();
+       int valid=1,pos,ch;
+       cout<<"\nwelcome to the bank";
+       cout<<"\nplease enter your login id:";
+       gets(mail);
+       cout<<"\nplease enter the password:";
+       gets(pass);
+       cout<<"\nPlease enter your account number:";
+       cin>>n;
+       ifstream finn;
+       ofstream foutt;
+       finn.open("person");
+
+       while(finn)
+       {pos=finn.tellg();
+       finn.read((char*)&b,sizeof(b));
+       if((strcmp(mail,b.code())==0)&&(strcmp(pass,b.code2())==0)&&(b.getAccountNumber()==n))
+       {
+       valid=0;break;
+       }
+       }
+
+       if(valid==1)
+       {finn.close();
+       cout<<"\nyour PASSWORD/ LOGIN ID / Account number is incorrect";
+       getch();
+       clrscr();
+       continue;}
+       clrscr();
+
+
+       cout<<"###############--WELCOME--###############";
+
+       cout<<"\nenter your choice:";
+       cout<<"\n1.Change password";
+       cout<<"\n2.Deposit amount";
+       cout<<"\n3.Withdraw amount";
+       cout<<"\n4.View details";
+       cout<<"\n5.Delete account";
+       cout<<"\n\n\n";
+       cin>>ch;
+       clrscr();
+       switch(ch)
+       {    //inner switch of case 2
+       case 5: char  confirm;
+       finn.seekg(pos);
+
+       finn.read((char*)&b,sizeof(b));
+       cout<<"\n\n\n";
+       cout<<"your account has "<<b.money()<<" rupees";
+       cout<<"\n\n\n\nAre you sure you want to delete the account??";
+       cin>>confirm;
+       if(confirm=='y'||confirm=='Y')
+       {clrscr();
+	ofstream ftemp;
+	ftemp.open("tempPerson",ios::binary);
+	finn.seekg(0,ios::beg);
+	while(finn.read((char*)&b,sizeof(b)))
+	{
+	if(strcmp(b.code(),mail)!=0)
+	ftemp.write((char*)&b,sizeof(b));
+
+	}
+	ftemp.close();
+	remove("person");
+	rename("tempPerson","person");
+       cout<<"\nDELETED";
+       }
+       finn.close();
+       cout<<"\n\n\n\n\n";
+       cout<<"\nplease  enter 'y' or 'Y' to return to the main menu:";
+
+       cin>>ans;
+       clrscr();
+       break;
+
+       case 4:   finn.seekg(pos);
+
+
+       finn.read((char*)&b,sizeof(b));
+       cout<<"\n\n\n";
+       cout<<"Hello Account Holder "<<b.getAccountNumber()<<"\n\n\n\n";
+       cout<<"Your account has "<<b.money()<<" rupees";
+       finn.close();
+       cout<<"\n\n\n\n\n";
+       cout<<"\nplease  enter 'y' or 'Y' to return to the main menu:";
+
+       cin>>ans;
+       clrscr();
+       break;
+       case 3:
+       foutt.open("person",ios::ate);
+       foutt.seekp(pos);
+       cout<<"\nEnter the amount you want to withdraw:";
+       cin>>m;
+
+       m=b.money()-m;
+       if(m<0)
+       {clrscr();
+       cout<<"There is not enough amount in your account";
+	}
+	else
+	{
+
+       b.getvalues(mail,m,pass,n);
+       foutt.write((char*)&b,sizeof(b));
+       clrscr();
+       cout<<"\n\n\nNow your balance is:";
+       finn.seekg(pos);
+       cout<<b.money();
+       }
+       foutt.close();
+       finn.close();
+       cout<<"\n\n\n";
+
+
+       cout<<"\nplease  enter 'y' or 'Y' to return to the main menu:";
+       cin>>ans;
+       clrscr();
+       break;
+       case 2:
+       foutt.open("person",ios::ate);
+       foutt.seekp(pos);
+       cout<<"\nEnter the amount you want to deposit:";
+       cin>>m;
+       m+=b.money();
+       b.getvalues(mail,m,pass,n);
+       foutt.write((char*)&b,sizeof(b));
+       foutt.close();
+   clrscr();
+   cout<<"\n\n\nNow your balance is:";
+   finn.seekg(pos);
+   cout<<b.money();
+	 finn.close();
+	 cout<<"\n\n\n";
+   cout<<"\nplease  enter 'y' or 'Y' to return to the main menu:";
+   cin>>ans;
+   clrscr();
+   break;
+       case 1:
+       foutt.open("person",ios::ate);
+       finn.seekg(pos);
+       finn.read((char*)&b,sizeof(b));
+       cout<<"Your current password is:";
+
+       cout<<b.code2();
+	cout<<"\n\n\n\n\nPlease press any key to change password";
+       len=11;
+       getch();
+       while(len>10)
+       { clrscr();
+       cout<<"\nenter a new password(meximum length 10):";
+       gets(pass);
+       len=strlen(pass);
+	}
+       foutt.seekp(pos);
+       strcpy(b.code2(),pass);
+       foutt.write((char*)&b,sizeof(b));
+	    foutt.close();
+	 finn.close();
+	 clrscr();
+	 cout<<"\n\n\n\nPassword Changed!!!\n\n\n";
+   cout<<"\nplease  enter 'y' or 'Y' to return to the main menu:";
+   cin>>ans;
+   clrscr();
+   break;
+
+
+       }
+
+break;
+     case 3://display list of all account holders
+		 clrscr();
+		 ifstream fi;
+    fi.open("person",ios::binary);
+     if(!fi)
+     cout<<"\nfile does not exist!!";
+      else
+      cout<<"\t\tAcoount Holder"<<"\t\t\t\t"<<"Account number\n\n";
+    while (fi.read((char*)&b,sizeof(bank)))
+    {
+     cout<<"\t\t"<<b.code()<<"\t\t\t\t\t"<<b.getAccountNumber();
+     cout<<"\n\n";
+     }
+     fi.close();
+      cout<<"\n\n\nplease  enter 'y' or 'Y' to return to the main menu:";
+   cin>>ans;
+   clrscr();
+
+
+break;
+   default:exit(0);
+   }
+   }
+	     getch();
+
+
+}
